@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>SGC - Acceso</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f2f4f7; display: flex; gap: 24px; justify-content: center; padding-top: 40px; }
+    .caja { background: white; padding: 24px; border-radius: 10px; width: 280px; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+    input { width: 100%; padding: 8px; margin: 6px 0 12px; box-sizing: border-box; }
+    button { width: 100%; padding: 10px; background: #2563eb; color: white; border: 0; border-radius: 6px; cursor: pointer; }
+    .ok { color: green; } .error { color: crimson; }
+  </style>
+</head>
+<body>
+
+  <div class="caja">
+    <h2>Registrarse</h2>
+    <input id="r_usuario" placeholder="Usuario">
+    <input id="r_nombre" placeholder="Nombre completo">
+    <input id="r_correo" placeholder="Correo">
+    <input id="r_password" type="password" placeholder="Contraseña">
+    <button onclick="registrar()">Crear cuenta</button>
+    <p id="r_msg"></p>
+  </div>
+
+  <div class="caja">
+    <h2>Iniciar sesión</h2>
+    <input id="l_usuario" placeholder="Usuario">
+    <input id="l_password" type="password" placeholder="Contraseña">
+    <button onclick="entrar()">Entrar</button>
+    <p id="l_msg"></p>
+  </div>
+
+  <script>
+    async function enviar(url, datos, idMensaje) {
+      const respuesta = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(datos)
+      });
+      const resultado = await respuesta.json();
+      const p = document.getElementById(idMensaje);
+      if (respuesta.ok) {
+        p.className = "ok";
+        p.textContent = resultado.mensaje + (resultado.usuario ? " - Bienvenido " + resultado.usuario.nombre_completo : "");
+      } else {
+        p.className = "error";
+        p.textContent = resultado.error;
+      }
+    }
+
+    function registrar() {
+      enviar("/api/usuarios", {
+        usuario: document.getElementById("r_usuario").value,
+        nombre_completo: document.getElementById("r_nombre").value,
+        correo: document.getElementById("r_correo").value,
+        password: document.getElementById("r_password").value
+      }, "r_msg");
+    }
+
+    function entrar() {
+      enviar("/api/login", {
+        usuario: document.getElementById("l_usuario").value,
+        password: document.getElementById("l_password").value
+      }, "l_msg");
+    }
+  </script>
+</body>
+</html>
